@@ -6,79 +6,131 @@
 <title>Christmas 2026 Gift Board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Layout idea: a schedule spine (Advent → 4 Sunday drops → Christmas morning), each stop a row of three kid lanes. */
+/* Festive & elegant: evergreen + antique gold on warm paper; script "Christmas", Cormorant headings, Jost for small text.
+   Layout: a schedule spine (Advent → 4 Sunday drops → Christmas morning), each stop a row of three kid lanes. */
 :root{
-  --bg:#f4f6f3; --surface:#ffffff; --ink:#1d2621; --muted:#5d6a63; --line:#dbe2dd;
-  --pine:#1f5c45;
-  --emmy:#7a4fb3; --maya:#1f7f8c; --everett:#c0392b;
-  --ok:#2f7d4a; --warn:#b26a00; --todo:#b23a48;
-  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
-  color-scheme: light;
+  --bg:#f8f3ea; --paper2:#f1e8d8; --surface:#fffdf8; --ink:#1f2a24; --muted:#6b6a5e; --line:#e6dcc8;
+  --pine:#1d4a38; --pine-deep:#12301f; --gold:#b08a3e; --gold-soft:#d9bf7f; --berry:#a32a2a;
+  --emmy:#7d3f74; --maya:#1f6e74; --everett:#b3261e; --shared:#9a7426;
+  --ok:#2f6f45; --warn:#a86400; --todo:#a32a3c;
+  --display:"Cormorant Garamond","Iowan Old Style",Georgia,serif;
+  --script:"Pinyon Script","Snell Roundhand","Apple Chancery",cursive;
+  --body:"Jost","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --shadow:0 1px 2px rgba(60,40,10,.05),0 6px 18px -8px rgba(60,40,10,.18);
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#111714; --surface:#19211d; --ink:#e7eee9; --muted:#9aa9a1; --line:#2c3732;
-    --pine:#6fc39c; --emmy:#b896ea; --maya:#5cc3cf; --everett:#ef7b6e;
-    --ok:#6fcf8f; --warn:#f0b04d; --todo:#f08a96; color-scheme: dark;
+    --bg:#0e1a14; --paper2:#13241b; --surface:#16261d; --ink:#efe9dc; --muted:#a9a796; --line:#2c3d31;
+    --pine:#8fcfae; --pine-deep:#0a160f; --gold:#d9b86a; --gold-soft:#9c844b; --berry:#e27b72;
+    --emmy:#d39ac9; --maya:#7fcfd3; --everett:#f08a7e; --shared:#dcbc6e;
+    --ok:#7fd19a; --warn:#f0b04d; --todo:#f08a96; --shadow:0 6px 18px -8px rgba(0,0,0,.6); color-scheme:dark;
   }
-}
-:root[data-theme="dark"]{
-  --bg:#111714; --surface:#19211d; --ink:#e7eee9; --muted:#9aa9a1; --line:#2c3732;
-  --pine:#6fc39c; --emmy:#b896ea; --maya:#5cc3cf; --everett:#ef7b6e;
-  --ok:#6fcf8f; --warn:#f0b04d; --todo:#f08a96; color-scheme: dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body)}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
-h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
-h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
-.sub{color:var(--muted);margin:4px 0 0}
-header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;margin-bottom:18px}
+body{
+  background:
+    radial-gradient(1200px 600px at 10% -10%, color-mix(in srgb,var(--gold-soft) 18%,transparent), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, color-mix(in srgb,var(--berry) 7%,transparent), transparent 60%),
+    var(--bg);
+  color:var(--ink);font:400 16px/1.5 var(--body)}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 56px}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0;font-weight:600;font-variant-numeric:lining-nums}
+.kidcard .nums b,.item h4,.stophead h2,.kidcard h3{font-feature-settings:"lnum" 1,"tnum" 1}
+
+/* Hero */
+header{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;gap:14px 24px;align-items:end;justify-content:space-between;
+  margin-bottom:22px;padding:26px 26px 22px;border-radius:18px;color:#f5ecd6;
+  background:radial-gradient(120% 140% at 0% 0%, #285c45 0%, var(--pine-deep) 70%);
+  box-shadow:0 10px 30px -14px rgba(10,30,20,.6), inset 0 0 0 1px rgba(217,191,127,.35)}
+header::before{content:"";position:absolute;inset:8px;border:1px solid rgba(217,191,127,.35);border-radius:12px;pointer-events:none}
+header::after{content:"";position:absolute;inset:-40px 0 0;pointer-events:none;opacity:.8;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px,#fff 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 90px 80px,#fff 50%,transparent 51%),
+    radial-gradient(2.5px 2.5px at 160px 20px,#fff 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 230px 110px,#fff 50%,transparent 51%),
+    radial-gradient(2px 2px at 300px 60px,#fff 50%,transparent 51%);
+  background-size:320px 140px;animation:snow 14s linear infinite}
+@keyframes snow{to{background-position:40px 140px}}
+@media (prefers-reduced-motion: reduce){header::after{animation:none}}
+header > *{position:relative;z-index:1}
+h1{line-height:.95;font-weight:600}
+h1 .script{display:block;font:400 clamp(3rem,9vw,4.8rem)/1 var(--script);color:var(--gold-soft);
+  text-shadow:0 1px 0 rgba(0,0,0,.25);margin-bottom:2px}
+h1 .rest{font:600 clamp(1.05rem,2.6vw,1.35rem)/1.2 var(--display);letter-spacing:.22em;text-transform:uppercase;color:#f5ecd6}
+h1 .rest .star{color:var(--gold-soft);letter-spacing:0;margin:0 .35em}
+.sub{color:var(--muted);margin:6px 0 0}
+header .sub{color:#d9d2bd;font-size:.92rem}
+header #editnote{color:#f0dfae}
+.linkbtn{font:500 .85rem var(--body);border:none;padding:0;background:none;text-decoration:underline;text-underline-offset:3px;color:#e9dcb5;cursor:pointer}
+.unlock{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:.88rem;color:#efe6cf}
+.unlock[hidden]{display:none}
+.unlock input{font:inherit;padding:6px 10px;border:1px solid rgba(217,191,127,.6);border-radius:8px;background:rgba(255,255,255,.08);color:#fff;min-width:12em}
+.unlock button{font:600 .82rem var(--body);padding:6px 14px;border:1px solid var(--gold-soft);border-radius:999px;background:var(--gold-soft);color:#1b2a20;cursor:pointer}
 
 .filters{display:flex;gap:8px;flex-wrap:wrap}
-.filters button{font:600 .9rem var(--body);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 14px;border-radius:999px;cursor:pointer}
-.filters button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
-.filters button:focus-visible,a:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+.filters button{font:500 .9rem var(--body);letter-spacing:.02em;border:1px solid rgba(217,191,127,.55);background:rgba(255,255,255,.06);color:#f5ecd6;padding:7px 16px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.filters button:hover{background:rgba(217,191,127,.18)}
+.filters button[aria-pressed="true"]{background:var(--gold-soft);border-color:var(--gold-soft);color:#16281d}
+.filters button:focus-visible,a:focus-visible,.linkbtn:focus-visible,.unlock button:focus-visible{outline:2px solid var(--gold-soft);outline-offset:2px}
 
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:22px}
-.kidcard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:10px;padding:12px 14px}
-.kidcard h3{font-size:1.15rem;color:var(--c)}
-.kidcard p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
-.kidcard .nums{display:flex;gap:14px;margin-top:8px;font-variant-numeric:tabular-nums}
-.kidcard .nums b{font-family:var(--display);font-size:1.3rem;display:block;color:var(--ink)}
-.kidcard .nums span{font-size:.8rem;color:var(--muted)}
+/* Kid summary cards */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px}
+.kidcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px 14px;box-shadow:var(--shadow);overflow:hidden}
+.kidcard::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 55%,var(--gold)))}
+.kidcard::after{content:"❄";position:absolute;right:12px;top:8px;font-size:2.6rem;line-height:1;color:color-mix(in srgb,var(--c) 14%,transparent)}
+.kidcard h3{font-size:1.65rem;color:var(--c);font-weight:700;line-height:1.1}
+.kidcard h3 small{font:500 .8rem var(--body)}
+.kidcard p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.kidcard .nums{display:flex;gap:18px;margin-top:10px;font-variant-numeric:tabular-nums}
+.kidcard .nums b{font:600 1.7rem/1 var(--display);display:block;color:var(--ink)}
+.kidcard .nums span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
 
-.todo{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--todo);border-radius:10px;padding:12px 16px;margin-bottom:26px}
-.todo h2{font-size:1.1rem;margin-bottom:6px}
-.todo ul{margin:0;padding-left:18px;display:grid;gap:4px}
+/* To-do as a gift tag */
+.todo{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 20px 14px 22px;margin-bottom:30px;box-shadow:var(--shadow)}
+.todo::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:repeating-linear-gradient(180deg,var(--berry) 0 10px,#fff 10px 14px)}
+.todo h2{font-size:1.45rem;margin-bottom:6px}
+.todo h2::before{content:"🎀 ";font-size:1.05rem}
+.todo ul{margin:0;padding-left:18px;display:grid;gap:5px}
+.todo li::marker{content:"✦  ";color:var(--gold)}
 .todo li span{color:var(--muted)}
 
-.stop{margin-bottom:26px}
-.stophead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--pine);padding-bottom:6px;margin-bottom:12px}
-.stophead h2{font-size:1.3rem;color:var(--pine)}
-.stophead .date{font:600 .85rem var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+/* Schedule stops */
+.stop{margin-bottom:34px}
+.stophead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:8px;margin-bottom:14px;
+  border-bottom:1px solid transparent;border-image:linear-gradient(90deg,var(--gold),color-mix(in srgb,var(--gold) 10%,transparent)) 1}
+.stophead h2{font-size:clamp(1.6rem,3.5vw,2rem);color:var(--pine);font-weight:600}
+.stophead h2::before{content:"✦";color:var(--gold);font-size:.7em;margin-right:.45em;vertical-align:.12em}
+.stophead .date{font:500 .8rem var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.16em}
+.stop.xmas{padding:18px 18px 8px;border-radius:18px;background:linear-gradient(180deg,color-mix(in srgb,var(--berry) 7%,var(--surface)),transparent);border:1px solid color-mix(in srgb,var(--berry) 22%,var(--line))}
+.stop.xmas .stophead h2{font:400 clamp(2.2rem,5vw,2.8rem)/1 var(--script);color:var(--berry)}
+.stop.xmas .stophead h2::before{content:"🎄";font-size:.5em;vertical-align:.3em}
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .lane{display:grid;gap:10px;align-content:start}
-.lane .who{font:700 .78rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--c)}
-.shared{margin-top:10px}
+.lane .who{font:600 1.15rem var(--display);font-style:italic;color:var(--c)}
+.shared{margin-top:12px}
 
-.item{display:grid;grid-template-columns:72px 1fr;gap:10px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:8px;padding:8px;align-items:start}
-.thumb{width:72px;height:72px;border-radius:6px;background:#fff;object-fit:contain;border:1px solid var(--line)}
-.ph{width:72px;height:72px;border-radius:6px;display:grid;place-items:center;font:700 1.5rem var(--display);color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--surface));border:1px solid var(--line)}
-.item h4{margin:0;font:600 .98rem/1.25 var(--body)}
-.item .note{margin:2px 0 0;font-size:.84rem;color:var(--muted)}
-.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
-.chip{font:600 .72rem var(--body);padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+/* Gift cards */
+.item{position:relative;display:grid;grid-template-columns:76px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;align-items:start;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
+.item::before{content:"";position:absolute;left:-1px;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--c)}
+.item:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(60,40,10,.06),0 12px 24px -10px rgba(60,40,10,.25)}
+.thumb{width:76px;height:76px;border-radius:9px;background:#fff;object-fit:contain;border:1px solid var(--line)}
+.ph{width:76px;height:76px;border-radius:9px;display:grid;place-items:center;font:700 1.6rem var(--display);color:var(--c);background:color-mix(in srgb,var(--c) 10%,var(--surface));border:1px solid var(--line)}
+.item h4{margin:0;padding-right:66px;font:600 1.12rem/1.2 var(--display)}
+.item .note{margin:3px 0 0;font-size:.84rem;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin-top:7px}
+.chip{font:500 .7rem var(--body);letter-spacing:.04em;padding:2px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap;background:color-mix(in srgb,currentColor 7%,transparent)}
 .chip.ok{color:var(--ok)} .chip.warn{color:var(--warn)} .chip.todo{color:var(--todo)}
-.item a{font-size:.84rem;color:var(--pine);font-weight:600}
+.item a{font-size:.82rem;color:var(--pine);font-weight:500;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,var(--gold) 70%,transparent)}
 .extra{font-size:.8rem;color:var(--muted)}
-.empty{font-size:.9rem;color:var(--muted);font-style:italic;padding:6px 0}
+.empty{font:italic 500 1rem var(--display);color:var(--muted);padding:6px 2px}
+.empty::before{content:"❄ ";color:var(--gold-soft)}
 
-.emmy{--c:var(--emmy)} .maya{--c:var(--maya)} .everett{--c:var(--everett)} .both,.all{--c:var(--pine)}
+.emmy{--c:var(--emmy)} .maya{--c:var(--maya)} .everett{--c:var(--everett)} .both,.all{--c:var(--shared)}
 
 body[data-kid]:not([data-kid="all"]) .lanes{grid-template-columns:1fr}
 body[data-kid="emmy"] .lane:not(.emmy):not(.shared),
@@ -92,38 +144,26 @@ body[data-kid="everett"]:not([data-kid="all"]) .summary .kidcard.everett{display
 
 @media (max-width:760px){
   .lanes{grid-template-columns:1fr}
+  header{padding:22px 20px 20px}
 }
-.price{font:600 .8rem var(--body);font-variant-numeric:tabular-nums;color:var(--ink)}
-.price.none{color:var(--muted);font-weight:400;font-style:italic}
-.kidcard .money{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);display:grid;gap:2px}
-.kidcard .money b{font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
-.kidcard .money span{font-size:.8rem;color:var(--muted)}
-.kidcard.total{--c:var(--pine)}
-body[data-kid]:not([data-kid="all"]) .summary .kidcard.total{display:none}
-.item{position:relative}
-.item h4{padding-right:64px}
-.rm,.restore{position:absolute;top:6px;right:6px;font:600 .72rem var(--body);color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:2px 9px;cursor:pointer}
+.rm,.restore{position:absolute;top:8px;right:8px;font:500 .7rem var(--body);letter-spacing:.03em;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 10px;cursor:pointer}
 .rm:hover{color:var(--todo);border-color:var(--todo)}
 .restore:hover{color:var(--ok);border-color:var(--ok)}
-.rm:focus-visible,.restore:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+.rm:focus-visible,.restore:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #editnote{min-height:1.2em;font-size:.85rem}
-.unlock{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:.85rem}
-.unlock[hidden]{display:none}
-.unlock input{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card,transparent);color:inherit;min-width:12em}
-.unlock button,.linkbtn{font:600 .8rem var(--body);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:transparent;color:inherit;cursor:pointer}
-.linkbtn{border:none;padding:0;text-decoration:underline;color:var(--muted);font-weight:500}
-.removed-sec{margin-top:8px;padding-top:12px;border-top:1px dashed var(--line)}
-.removed-sec h2{font-size:1.05rem;color:var(--muted);margin-bottom:8px}
+.removed-sec{margin-top:8px;padding-top:14px;border-top:1px dashed var(--line)}
+.removed-sec h2{font-size:1.3rem;color:var(--muted);margin-bottom:10px}
 .removed-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
 .removed-list .item{opacity:.6}
-footer{color:var(--muted);font-size:.82rem;margin-top:30px}
+footer{color:var(--muted);font-size:.8rem;margin-top:34px;text-align:center;padding-top:16px;border-top:1px solid var(--line)}
+footer::before{content:"✦  ✦  ✦";display:block;color:var(--gold);letter-spacing:.4em;margin-bottom:8px}
 </style>
 </head>
 <body data-kid="all">
 <div class="wrap">
   <header>
     <div>
-      <h1>Christmas 2026 Gift Board</h1>
+      <h1><span class="script">Christmas</span><span class="rest">Gift Board<span class="star" aria-hidden="true">✦</span>2026</span></h1>
       <p class="sub">Advent Dec 1–24 · drops on the four Sundays of Advent · Christmas morning</p>
       <p class="sub" id="editnote" aria-live="polite"></p>
       <p class="sub" id="editopen" hidden><button class="linkbtn" id="editbtn" type="button">Edit this board</button></p>
@@ -154,7 +194,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:30px}
     <div class="removed-list" id="removedList"></div>
   </section>
 
-  <footer>Photos are cropped from your order screenshots. "Search" links open a store search; the other links go to a product or info page. Status as of Nov 22. Removing an item hides it for everyone looking at this board; restore it from "Removed items" at the bottom.</footer>
+  <footer>Photos are cropped from your order screenshots. "Search" links open a store search; the other links go to a product or info page. Status as of Nov 23. Removing an item hides it for everyone looking at this board; restore it from "Removed items" at the bottom.</footer>
 </div>
 
 <script>
@@ -275,7 +315,7 @@ function render(){
     const tobuy = mine.filter(i=>i.st==="todo").length;
     const t = tally(items.filter(i=>i.kid===k.id));
     const transit = mine.filter(i=>i.st==="warn").length;
-    return `<div class="kidcard ${k.id}"><h3>${k.name} · ${k.age}</h3><p>${k.blurb}</p>
+    return `<div class="kidcard ${k.id}"><h3>${k.name} <small>${k.age}</small></h3><p>${k.blurb}</p>
       <div class="nums"><div><b>${mine.length}</b><span>gifts</span></div><div><b>${transit}</b><span>in transit</span></div><div><b>${tobuy}</b><span>to buy</span></div></div></div>`;
   }).join("");
   document.getElementById("todo").innerHTML = todos.map(([a,b])=>`<li>${a} <span>· ${b}</span></li>`).join("");
@@ -286,7 +326,7 @@ function render(){
     }).join("");
     const sharedRow = (who,label) => { const l = live().filter(i=>i.slot===s.id && i.kid===who);
       return l.length?`<div class="shared lane ${who}"><div class="who">${label}</div>${l.map(i=>card(i)).join("")}</div>`:""; };
-    return `<section class="stop"><div class="stophead"><h2>${s.title}</h2><span class="date">${s.date}</span></div>
+    return `<section class="stop ${s.id}"><div class="stophead"><h2>${s.title}</h2><span class="date">${s.date}</span></div>
       <div class="lanes">${lanes}</div>
       ${sharedRow("both","Emmy + Maya, shared")}${sharedRow("all","All three kids, shared")}</section>`;
   }).join("");
