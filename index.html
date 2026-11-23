@@ -58,6 +58,16 @@ header::after{content:"";position:absolute;inset:-40px 0 0;pointer-events:none;o
 @keyframes snow{to{background-position:40px 140px}}
 @media (prefers-reduced-motion: reduce){header::after{animation:none}}
 header > *{position:relative;z-index:1}
+header > .lights{position:absolute;left:0;right:0;top:0;height:70px;z-index:2;pointer-events:none}
+.lights svg{display:block;width:100%;height:100%;overflow:visible}
+.lights .wire{fill:none;stroke:#0b1a12;stroke-width:2.2;stroke-linecap:round}
+.lights .wire2{fill:none;stroke:#2c4a38;stroke-width:1;opacity:.8}
+.lights .glow{filter:blur(7px);opacity:.75;animation:twinkle 3.2s ease-in-out infinite}
+.lights .bulb{animation:bright 3.2s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.75}50%{opacity:.25}}
+@keyframes bright{0%,100%{filter:brightness(1.05) saturate(1.1)}50%{filter:brightness(.72) saturate(.85)}}
+@media (prefers-reduced-motion: reduce){.lights .glow,.lights .bulb{animation:none}}
+
 h1{line-height:.95;font-weight:600}
 h1 .script{display:block;font:400 clamp(3rem,9vw,4.8rem)/1 var(--script);color:var(--gold-soft);
   text-shadow:0 1px 0 rgba(0,0,0,.25);margin-bottom:2px}
@@ -157,11 +167,14 @@ body[data-kid="everett"]:not([data-kid="all"]) .summary .kidcard.everett{display
 .removed-list .item{opacity:.6}
 footer{color:var(--muted);font-size:.8rem;margin-top:34px;text-align:center;padding-top:16px;border-top:1px solid var(--line)}
 footer::before{content:"✦  ✦  ✦";display:block;color:var(--gold);letter-spacing:.4em;margin-bottom:8px}
+header{padding-top:78px !important}
+@media (max-width:760px){header{padding-top:72px !important}}
 </style>
 </head>
 <body data-kid="all">
 <div class="wrap">
   <header>
+    <div class="lights" id="lights" aria-hidden="true"></div>
     <div>
       <h1><span class="script">Christmas</span><span class="rest">Gift Board<span class="star" aria-hidden="true">✦</span>2026</span></h1>
       <p class="sub">Advent Dec 1–24 · drops on the four Sundays of Advent · Christmas morning</p>
@@ -453,6 +466,28 @@ function setKid(k){
   document.querySelectorAll(".filters button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===k ? "true":"false"));
   try{ localStorage.setItem("giftboard-kid", k); }catch(e){}
 }
+function drawLights(){
+  const host = document.getElementById("lights"); if(!host) return;
+  const W = Math.max(300, host.clientWidth), P = W < 600 ? 120 : 160, top = 6, sag = 22, gap = W < 600 ? 34 : 40;
+  const cols = ["#ff4b4b","#ffc94d","#35d07f","#4aa3ff","#ff6fcf","#ff9a3c"];
+  const y = x => top + sag*Math.abs(Math.sin(Math.PI*x/P));
+  const dy = x => sag*Math.PI/P*Math.cos(Math.PI*x/P)*Math.sign(Math.sin(Math.PI*x/P)||1);
+  let d = `M -10 ${y(-10)}`; for(let x=-10; x<=W+10; x+=4) d += ` L ${x} ${y(x).toFixed(1)}`;
+  let d2 = `M -10 ${y(-10)+2}`; for(let x=-10; x<=W+10; x+=4) d2 += ` L ${x} ${(top+2+(sag-3)*Math.abs(Math.sin(Math.PI*(x+P*.08)/P))).toFixed(1)}`;
+  let glows = "", bulbs = "", i = 0;
+  for(let x = gap/2; x < W; x += gap, i++){
+    const c = cols[i % cols.length], yy = y(x), r = Math.atan(dy(x))*180/Math.PI*0.55 + (i%2? 6 : -6);
+    const delay = ((i*7)%11)*0.29;
+    glows += `<circle class="glow" cx="${x.toFixed(1)}" cy="${(yy+17).toFixed(1)}" r="13" fill="${c}" style="animation-delay:${delay}s"/>`;
+    bulbs += `<g transform="translate(${x.toFixed(1)} ${yy.toFixed(1)}) rotate(${r.toFixed(1)})">
+      <rect x="-3.2" y="-1" width="6.4" height="8" rx="1.4" fill="#1a2018"/><rect x="-3.2" y="1.5" width="6.4" height="1" fill="#3a4636"/>
+      <path class="bulb" style="animation-delay:${delay}s" d="M0 6.5 C7.5 9 8 21 0 29 C-8 21 -7.5 9 0 6.5Z" fill="${c}"/>
+      <ellipse cx="-2.4" cy="13.5" rx="1.6" ry="4.2" fill="#fff" opacity=".55" transform="rotate(12 -2.4 13.5)"/></g>`;
+  }
+  host.innerHTML = `<svg viewBox="0 0 ${W} 70" preserveAspectRatio="none"><path class="wire2" d="${d2}"/><path class="wire" d="${d}"/>${glows}${bulbs}</svg>`;
+}
+drawLights();
+let lightsT; addEventListener("resize", ()=>{ clearTimeout(lightsT); lightsT = setTimeout(drawLights, 120); });
 render();
 document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>setKid(b.dataset.k)));
 try{ const saved = localStorage.getItem("giftboard-kid"); if(saved) setKid(saved); }catch(e){}
