@@ -100,6 +100,17 @@ body[data-kid="everett"]:not([data-kid="all"]) .summary .kidcard.everett{display
 .kidcard .money span{font-size:.8rem;color:var(--muted)}
 .kidcard.total{--c:var(--pine)}
 body[data-kid]:not([data-kid="all"]) .summary .kidcard.total{display:none}
+.item{position:relative}
+.item h4{padding-right:64px}
+.rm,.restore{position:absolute;top:6px;right:6px;font:600 .72rem var(--body);color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:2px 9px;cursor:pointer}
+.rm:hover{color:var(--todo);border-color:var(--todo)}
+.restore:hover{color:var(--ok);border-color:var(--ok)}
+.rm:focus-visible,.restore:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+#editnote{min-height:1.2em;font-size:.85rem}
+.removed-sec{margin-top:8px;padding-top:12px;border-top:1px dashed var(--line)}
+.removed-sec h2{font-size:1.05rem;color:var(--muted);margin-bottom:8px}
+.removed-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.removed-list .item{opacity:.6}
 footer{color:var(--muted);font-size:.82rem;margin-top:30px}
 </style>
 </head>
@@ -109,6 +120,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:30px}
     <div>
       <h1>Christmas 2026 Gift Board</h1>
       <p class="sub">Advent Dec 1–24 · drops on the four Sundays of Advent · Christmas morning</p>
+      <p class="sub" id="editnote" aria-live="polite"></p>
     </div>
     <div class="filters" role="group" aria-label="Show gifts for">
       <button id="f-all" data-k="all" aria-pressed="true">Everyone</button>
@@ -126,8 +138,12 @@ footer{color:var(--muted);font-size:.82rem;margin-top:30px}
   </section>
 
   <div id="schedule"></div>
+  <section class="removed-sec" id="removedSec" hidden aria-labelledby="removed-h">
+    <h2 id="removed-h">Removed items</h2>
+    <div class="removed-list" id="removedList"></div>
+  </section>
 
-  <footer>Photos are cropped from your order screenshots. "Search" links open a store search; the other links go to a product or info page. Status as of Nov 13.</footer>
+  <footer>Photos are cropped from your order screenshots. "Search" links open a store search; the other links go to a product or info page. Status as of Nov 22. Removing an item hides it for everyone who can edit this board; restore it from "Removed items" at the bottom.</footer>
 </div>
 
 <script>
@@ -206,6 +222,13 @@ const todos = [
   ["Optional: Joyce's alphabet lights for Everett", "DIY; or the Stardew crochet book preorder (out Jan 26) for Emmy"],
 ];
 
+items.forEach(i=>{ i.id = (i.kid+"-"+i.slot+"-"+i.name).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,150); });
+let removed = new Map();
+let canEdit = false;
+let removedCol = null;
+const live = () => items.filter(i=>!removed.has(i.id));
+function setNote(msg){ document.getElementById("editnote").textContent = msg; }
+
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 function priceTxt(it){
@@ -218,12 +241,15 @@ function tally(list){
   list.forEach(i=>{ if(i.p==null) missing++; else if(i.est) est+=i.p; else known+=i.p; });
   return {known, est, total:known+est, missing};
 }
-function card(it){
+function card(it, mode){
   const pic = it.img
     ? `<img class="thumb" src="img/${it.img}.jpg" alt="${esc(it.name)}" loading="lazy">`
     : `<div class="ph" aria-hidden="true">${it.ph||"🎁"}</div>`;
   const link = it.nolink ? "" : `<a href="${it.link}" target="_blank" rel="noopener">${esc(it.lt)} ↗</a>`;
-  return `<article class="item ${it.kid}">${pic}<div>
+  const btn = !canEdit ? "" : mode==="removed"
+    ? `<button class="restore" data-id="${esc(it.id)}" aria-label="Restore ${esc(it.name)}">Restore</button>`
+    : `<button class="rm" data-id="${esc(it.id)}" aria-label="Remove ${esc(it.name)}">Remove</button>`;
+  return `<article class="item ${it.kid}">${btn}${pic}<div>
     <h4>${esc(it.name)}</h4>
     ${it.note?`<p class="note">${esc(it.note)}</p>`:""}
     <div class="meta"><span class="chip ${it.st}">${esc(it.stTxt)}</span>${it.extra?`<span class="extra">${esc(it.extra)}</span>`:""}${link}</div>
@@ -231,7 +257,7 @@ function card(it){
 }
 function render(){
   document.getElementById("summary").innerHTML = kids.map(k=>{
-    const mine = items.filter(i=>i.kid===k.id || i.kid==="all" || (i.kid==="both" && k.id!=="everett"));
+    const mine = live().filter(i=>i.kid===k.id || i.kid==="all" || (i.kid==="both" && k.id!=="everett"));
     const tobuy = mine.filter(i=>i.st==="todo").length;
     const t = tally(items.filter(i=>i.kid===k.id));
     const transit = mine.filter(i=>i.st==="warn").length;
@@ -241,16 +267,66 @@ function render(){
   document.getElementById("todo").innerHTML = todos.map(([a,b])=>`<li>${a} <span>· ${b}</span></li>`).join("");
   document.getElementById("schedule").innerHTML = slots.map(s=>{
     const lanes = kids.map(k=>{
-      const list = items.filter(i=>i.slot===s.id && i.kid===k.id);
-      return `<div class="lane ${k.id}"><div class="who">${k.name}</div>${list.length?list.map(card).join(""):`<div class="empty">Nothing here</div>`}</div>`;
+      const list = live().filter(i=>i.slot===s.id && i.kid===k.id);
+      return `<div class="lane ${k.id}"><div class="who">${k.name}</div>${list.length?list.map(i=>card(i)).join(""):`<div class="empty">Nothing here</div>`}</div>`;
     }).join("");
-    const sharedRow = (who,label) => { const l = items.filter(i=>i.slot===s.id && i.kid===who);
-      return l.length?`<div class="shared lane ${who}"><div class="who">${label}</div>${l.map(card).join("")}</div>`:""; };
+    const sharedRow = (who,label) => { const l = live().filter(i=>i.slot===s.id && i.kid===who);
+      return l.length?`<div class="shared lane ${who}"><div class="who">${label}</div>${l.map(i=>card(i)).join("")}</div>`:""; };
     return `<section class="stop"><div class="stophead"><h2>${s.title}</h2><span class="date">${s.date}</span></div>
       <div class="lanes">${lanes}</div>
       ${sharedRow("both","Emmy + Maya, shared")}${sharedRow("all","All three kids, shared")}</section>`;
   }).join("");
+  const gone = items.filter(i=>removed.has(i.id));
+  document.getElementById("removedSec").hidden = gone.length===0;
+  document.getElementById("removedList").innerHTML = gone.map(i=>card(i,"removed")).join("");
 }
+
+let busy = false;
+async function writeRemoved(id, remove){
+  if(!removedCol || busy) return;
+  busy = true;
+  const ref = removedCol.doc(id);
+  const go = () => remove ? ref.set({at: new Date().toISOString()}) : ref.delete();
+  try{
+    try{ await go(); }
+    catch(e){
+      if(e && e.code==="unavailable"){ await new Promise(r=>setTimeout(r, 600+Math.random()*800)); await go(); }
+      else throw e;
+    }
+  }catch(e){
+    if(e && (e.code==="invalid_argument" || e.code==="not_granted" || e.code==="revoked")){
+      canEdit = false; render(); setNote("You can view this board but not change it.");
+    }else if(e && e.code==="quota_exceeded"){
+      setNote("The board's storage is full, so that change wasn't saved.");
+    }else{
+      setNote("That change didn't save. Try again in a moment.");
+    }
+  }finally{ busy = false; }
+}
+document.addEventListener("click", ev=>{
+  const b = ev.target.closest(".rm, .restore");
+  if(!b) return;
+  writeRemoved(b.dataset.id, b.classList.contains("rm"));
+});
+
+(async ()=>{
+  if(typeof claude === "undefined" || !claude || typeof claude.use !== "function") return;
+  const db = await claude.use("db");
+  if(!db){ setNote("Sign in on claude.ai to remove items."); return; }
+  removedCol = db.collection("removed");
+  canEdit = true;
+  setNote("Loading saved changes…");
+  const timer = setTimeout(()=>setNote("Saved changes can't be reached yet, so the list may be out of date."), 10000);
+  removedCol.onSnapshot(snap=>{
+    removed = new Map(snap.docs.map(d=>[d.id, d.data()]));
+    if(!snap.metadata.fromCache){ clearTimeout(timer); setNote(""); }
+    render();
+  }, err=>{
+    clearTimeout(timer);
+    if(err && err.code==="revoked"){ canEdit=false; render(); setNote(""); return; }
+    setNote("Saved changes couldn't load, so the list may be out of date.");
+  });
+})();
 function setKid(k){
   document.body.dataset.kid = k;
   document.querySelectorAll(".filters button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===k ? "true":"false"));
