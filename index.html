@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Christmas 2026 Gift Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a schedule spine (Advent → 4 Sunday drops → Christmas morning), each stop a row of three kid lanes. */
+:root{
+  --bg:#f4f6f3; --surface:#ffffff; --ink:#1d2621; --muted:#5d6a63; --line:#dbe2dd;
+  --pine:#1f5c45;
+  --emmy:#7a4fb3; --maya:#1f7f8c; --everett:#c0392b;
+  --ok:#2f7d4a; --warn:#b26a00; --todo:#b23a48;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111714; --surface:#19211d; --ink:#e7eee9; --muted:#9aa9a1; --line:#2c3732;
+    --pine:#6fc39c; --emmy:#b896ea; --maya:#5cc3cf; --everett:#ef7b6e;
+    --ok:#6fcf8f; --warn:#f0b04d; --todo:#f08a96; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111714; --surface:#19211d; --ink:#e7eee9; --muted:#9aa9a1; --line:#2c3732;
+  --pine:#6fc39c; --emmy:#b896ea; --maya:#5cc3cf; --everett:#ef7b6e;
+  --ok:#6fcf8f; --warn:#f0b04d; --todo:#f08a96; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body)}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:4px 0 0}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;margin-bottom:18px}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filters button{font:600 .9rem var(--body);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 14px;border-radius:999px;cursor:pointer}
+.filters button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.filters button:focus-visible,a:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:22px}
+.kidcard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:10px;padding:12px 14px}
+.kidcard h3{font-size:1.15rem;color:var(--c)}
+.kidcard p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.kidcard .nums{display:flex;gap:14px;margin-top:8px;font-variant-numeric:tabular-nums}
+.kidcard .nums b{font-family:var(--display);font-size:1.3rem;display:block;color:var(--ink)}
+.kidcard .nums span{font-size:.8rem;color:var(--muted)}
+
+.todo{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--todo);border-radius:10px;padding:12px 16px;margin-bottom:26px}
+.todo h2{font-size:1.1rem;margin-bottom:6px}
+.todo ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.todo li span{color:var(--muted)}
+
+.stop{margin-bottom:26px}
+.stophead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--pine);padding-bottom:6px;margin-bottom:12px}
+.stophead h2{font-size:1.3rem;color:var(--pine)}
+.stophead .date{font:600 .85rem var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.lane{display:grid;gap:10px;align-content:start}
+.lane .who{font:700 .78rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--c)}
+.shared{margin-top:10px}
+
+.item{display:grid;grid-template-columns:72px 1fr;gap:10px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:8px;padding:8px;align-items:start}
+.thumb{width:72px;height:72px;border-radius:6px;background:#fff;object-fit:contain;border:1px solid var(--line)}
+.ph{width:72px;height:72px;border-radius:6px;display:grid;place-items:center;font:700 1.5rem var(--display);color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--surface));border:1px solid var(--line)}
+.item h4{margin:0;font:600 .98rem/1.25 var(--body)}
+.item .note{margin:2px 0 0;font-size:.84rem;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.chip{font:600 .72rem var(--body);padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.chip.ok{color:var(--ok)} .chip.warn{color:var(--warn)} .chip.todo{color:var(--todo)}
+.item a{font-size:.84rem;color:var(--pine);font-weight:600}
+.extra{font-size:.8rem;color:var(--muted)}
+.empty{font-size:.9rem;color:var(--muted);font-style:italic;padding:6px 0}
+
+.emmy{--c:var(--emmy)} .maya{--c:var(--maya)} .everett{--c:var(--everett)} .both,.all{--c:var(--pine)}
+
+body[data-kid]:not([data-kid="all"]) .lanes{grid-template-columns:1fr}
+body[data-kid="emmy"] .lane:not(.emmy):not(.shared),
+body[data-kid="maya"] .lane:not(.maya):not(.shared),
+body[data-kid="everett"] .lane:not(.everett):not(.shared){display:none}
+body[data-kid="everett"] .shared.both{display:none}
+body[data-kid]:not([data-kid="all"]) .summary .kidcard{display:none}
+body[data-kid="emmy"]:not([data-kid="all"]) .summary .kidcard.emmy,
+body[data-kid="maya"]:not([data-kid="all"]) .summary .kidcard.maya,
+body[data-kid="everett"]:not([data-kid="all"]) .summary .kidcard.everett{display:block}
+
+@media (max-width:760px){
+  .lanes{grid-template-columns:1fr}
+}
+.price{font:600 .8rem var(--body);font-variant-numeric:tabular-nums;color:var(--ink)}
+.price.none{color:var(--muted);font-weight:400;font-style:italic}
+.kidcard .money{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);display:grid;gap:2px}
+.kidcard .money b{font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.kidcard .money span{font-size:.8rem;color:var(--muted)}
+.kidcard.total{--c:var(--pine)}
+body[data-kid]:not([data-kid="all"]) .summary .kidcard.total{display:none}
+footer{color:var(--muted);font-size:.82rem;margin-top:30px}
+</style>
+</head>
+<body data-kid="all">
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Christmas 2026 Gift Board</h1>
+      <p class="sub">Advent Dec 1–24 · drops on the four Sundays of Advent · Christmas morning</p>
+    </div>
+    <div class="filters" role="group" aria-label="Show gifts for">
+      <button id="f-all" data-k="all" aria-pressed="true">Everyone</button>
+      <button id="f-emmy" data-k="emmy" aria-pressed="false">Emmy</button>
+      <button id="f-maya" data-k="maya" aria-pressed="false">Maya</button>
+      <button id="f-everett" data-k="everett" aria-pressed="false">Everett</button>
+    </div>
+  </header>
+
+  <section class="summary" id="summary"></section>
+
+  <section class="todo" aria-labelledby="todo-h">
+    <h2 id="todo-h">Still to do</h2>
+    <ul id="todo"></ul>
+  </section>
+
+  <div id="schedule"></div>
+
+  <footer>Photos are cropped from your order screenshots. "Search" links open a store search; the other links go to a product or info page. Status as of Nov 13.</footer>
+</div>
+
+<script>
+const AMZ = q => "https://www.amazon.com/s?k=" + encodeURIComponent(q);
+const GOO = q => "https://www.google.com/search?q=" + encodeURIComponent(q);
+
+// status: ok = in hand / ordered, warn = in transit with a date, todo = still to buy
+const items = [
+  // ADVENT
+  {kid:"emmy", slot:"advent", name:"Puzzle advent calendar", note:"Ravensburger, 24 doors of pieces. Either puzzle can go to either girl.", img:"ravensburger", st:"warn", stTxt:"Arriving Thu", link:AMZ("Ravensburger advent calendar puzzle 1000"), lt:"Search"},
+  {kid:"maya", slot:"advent", name:"Puzzle advent calendar", note:"Christmas Cheer, 1,000 pieces, 24-day countdown.", img:"christmascheer", st:"ok", stTxt:"Arriving Mon", link:AMZ("Christmas Cheer 1000 piece jigsaw puzzle advent calendar"), lt:"Search"},
+  {kid:"everett", slot:"advent", name:"Brick Christmas advent", note:"Builds a tree, sleigh and train. Check the listing for 24 boxes.", img:"brickadvent", st:"ok", stTxt:"Arriving Mon", link:AMZ("building blocks Christmas advent calendar tree sleigh train"), lt:"Search"},
+
+  // NOV 29
+  {kid:"emmy", slot:"d1", name:"Clip-on book light", img:"booklight", st:"ok", stTxt:"Arriving Mon", link:AMZ("clip on book light rechargeable"), lt:"Search"},
+  {kid:"emmy", slot:"d1", name:"Dangerous Impulses", p:21.99, est:true, note:"Naturals #5, a Christmas-set YA mystery. Out Nov 3.", ph:"📖", st:"ok", stTxt:"Ordered", link:"https://bookshop.org/p/books/dangerous-impulses-jennifer-lynn-barnes/e38ed5ed15b21cc7", lt:"Book page"},
+  {kid:"maya", slot:"d1", name:"Sibley Birder's Life List & Field Diary", img:"sibley", st:"ok", stTxt:"Arriving Mon", link:AMZ("Sibley Birder's Life List and Field Diary"), lt:"Search"},
+  {kid:"everett", slot:"d1", name:"Stranger Things WSQK flashlight", img:"flashlight", extra:"+ Kinder Joy egg", st:"ok", stTxt:"Arriving Mon", link:AMZ("Energizer Stranger Things Squawk flashlight"), lt:"Search"},
+
+  // DEC 6
+  {kid:"emmy", slot:"d2", name:"Volleyball solo trainer", img:"volleyball", st:"ok", stTxt:"Arriving Mon", link:AMZ("volleyball solo spike trainer belt"), lt:"Search"},
+  {kid:"maya", slot:"d2", name:"Barn owl pellet kit", img:"owlpellet", st:"warn", stTxt:"Arriving Thu", link:AMZ("barn owl pellet dissection kit"), lt:"Search"},
+  {kid:"everett", slot:"d2", name:"Demogorgon Squishmallow", img:"demogorgon", extra:"+ Kinder Joy egg", st:"ok", stTxt:"Arriving Mon", link:AMZ("Squishmallow Demogorgon Stranger Things"), lt:"Search"},
+
+  // DEC 13
+  {kid:"emmy", slot:"d3", name:"Her Olivia Rodrigo 45", note:"Plays on Maya's Sound Burger.", ph:"♫", st:"warn", stTxt:"Ordered", link:GOO("Olivia Rodrigo official store vinyl 7 inch"), lt:"Search"},
+  {kid:"maya", slot:"d3", name:"Audio-Technica Sound Burger", p:199, est:true, note:"No built-in speaker. Pair it with her Bluetooth speaker before wrapping.", ph:"🍔", st:"ok", stTxt:"Ordered", link:"https://listenup.com/products/audio-technica-at-sb727-sound-burger-compact-turntable", lt:"Product page"},
+  {kid:"maya", slot:"d3", name:"“take me home (4 christmas)” 45", p:15, img:"or45", st:"warn", stTxt:"~Dec 11", link:GOO("Olivia Rodrigo take me home 4 christmas vinyl"), lt:"Search"},
+  {kid:"everett", slot:"d3", name:"Coyote Peterson's Wildlife Adventure", img:"coyote", extra:"+ Kinder Joy egg", st:"warn", stTxt:"Nov 23–27", link:"https://www.bravewilderness.com/shop", lt:"Brave Wilderness shop"},
+
+  // DEC 20
+  {kid:"emmy", slot:"d4", name:"Fingerless gloves + 2 felt charms", p:62.5, note:"Glove color and charm split still to decide (heart, tree, knife, guitar).", img:"pinkgloves", st:"warn", stTxt:"~Dec 11", link:GOO("Olivia Rodrigo official store fingerless gloves felt bag charm"), lt:"Search"},
+  {kid:"maya", slot:"d4", name:"Fingerless gloves + 2 felt charms", p:62.5, note:"The other glove color and two charms.", img:"creamgloves", st:"warn", stTxt:"~Dec 11", link:GOO("Olivia Rodrigo official store fingerless gloves felt bag charm"), lt:"Search"},
+  {kid:"everett", slot:"d4", name:"Stranger Things coloring book", note:"Detailed line art, so a good one to color with his sisters.", img:"coloring", extra:"+ Kinder Joy egg", st:"ok", stTxt:"Arriving Mon", link:AMZ("Stranger Things The Official Coloring Book"), lt:"Search"},
+  {kid:"everett", slot:"d4", name:"Charizard Life-Size Puzzle (151 pc)", note:"His winter-break puzzle, the same week as his sisters' Lauterbrunnen one. Charmander all grown up, to go with his Lego set.", img:"charizard", st:"ok", stTxt:"In hand", link:"https://www.google.com/search?q=Charizard+Life-Size+Puzzle+151+pieces", lt:"Search"},
+  {kid:"both", slot:"d4", name:"Lauterbrunnen 1,000-piece puzzle (Trefl)", note:"For Emmy and Maya, as the winter-break family puzzle.", img:"trefl", st:"ok", stTxt:"Arriving Mon", link:AMZ("Trefl Lauterbrunnen 1000 puzzle"), lt:"Search"},
+
+  // CHRISTMAS
+  {kid:"emmy", slot:"xmas", name:"Wishlist clothes (AE + Urban Outfitters)", note:"AE Lowest Rise Extra Baggy Jean (Medium Wash, 2 X-Short); AE Lace Trim Cozy Cami (Relic, S); UO BDG Kayla Low-Rise Jeans in Red (27) and Rinse (26, backordered until after Dec 14); UO Bec Foldover Wide Leg Pants (Red, XS); UO OFU Off-the-Shoulder Sweater (Red, XS).", ph:"👖", st:"warn", stTxt:"Ordered", link:"https://www.urbanoutfitters.com", lt:"Urban Outfitters"},
+  {kid:"emmy", slot:"xmas", name:"Threshing Day", note:"Rebecca Yarros, 13 Empyrean stories. Deluxe 1st edition has 16 color illustrations.", ph:"🐉", st:"ok", stTxt:"Ordered", link:"https://www.indigo.ca/products/untitled-empyrean-not-book-four", lt:"Book page"},
+  {kid:"emmy", slot:"xmas", name:"A Court of Splintered Harmony", note:"ACOTAR #6. Book 7 is out Jan 12, so a preorder card is an option.", ph:"🥀", st:"ok", stTxt:"Ordered", link:"https://www.indigo.ca/products/a-court-of-splintered-harmony", lt:"Book page"},
+  {kid:"emmy", slot:"xmas", name:"Hoptimist Lamp, Large (Sky Blue)", note:"Bobbing Scandinavian LED lamp, 9.8 in tall, for her reading spot.", img:"hoptimist", st:"ok", stTxt:"Ordered", link:"https://www.amazon.com/s?k=Hoptimist+Lamp+Large+Sky+Blue", lt:"Search"},
+  {kid:"both", slot:"xmas", name:"Mini Simmotion replica (Survivor challenge)", note:"Tabletop version of the Survivor ball-coaster puzzle challenge, for Emmy and Maya to race each other on.", ph:"🎯", st:"ok", stTxt:"Ordered", link:"https://www.google.com/search?q=Survivor+Simmotion+mini+replica", lt:"Search"},
+  {kid:"maya", slot:"xmas", name:"Quince clothes (size 12)", note:"Fisherman tunic sweater (Agave), crewneck sweater (Sky Blue), crewneck cardigan (Black), high-rise flare pant, pocket leggings, Flowknit tank (Shell Pink). Plus AE Lowest Rise Extra Baggy Jean (Medium Wash, 00 X-Short), arriving Dec 1–2.", ph:"🧥", st:"warn", stTxt:"Nov 25–29", link:"https://www.quince.com", lt:"Quince"},
+  {kid:"maya", slot:"xmas", name:"Canon Ivy 2 mini photo printer", note:"Pure White, with 20 sheets of peel-and-stick circle stickers. Prints from her phone, so bird photos can go straight into her Sibley life list.", img:"ivy2", st:"ok", stTxt:"In hand", link:"https://www.google.com/search?q=Canon+Ivy+2+mini+photo+printer", lt:"Search"},
+  {kid:"maya", slot:"xmas", name:"Stardew Valley Junimo woven throw", note:"60\" × 50\" cotton blanket with pixel Junimos, from KRS Design Company. No returns.", img:"junimoblanket", st:"ok", stTxt:"Shipped", link:"https://www.google.com/search?q=KRS+Design+Company+Stardew+Valley+Junimo+blanket", lt:"Search"},
+  {kid:"maya", slot:"xmas", name:"Groaning Blobfish", note:"Squeezable blobfish that groans.", img:"blobfish", st:"ok", stTxt:"Ordered", link:"https://www.amazon.com/s?k=groaning+blobfish", lt:"Search"},
+  {kid:"maya", slot:"xmas", name:"Olivia Rodrigo SOUR vinyl", ph:"💿", st:"ok", stTxt:"Ordered", link:GOO("Olivia Rodrigo SOUR vinyl"), lt:"Search"},
+  {kid:"all", slot:"xmas", name:"Fondue night kit", note:"Red cast-iron fondue pot with burner and forks, 6 boxes of Swiss Knight cheese fondue, and Swissmar fire gel (2 sets of 3). Grown-ups handle the burner.", img:"fondue", st:"ok", stTxt:"Arriving Wed", link:"https://www.amazon.com/s?k=Swiss+Knight+cheese+fondue", lt:"Search"},
+  {kid:"everett", slot:"xmas", name:"CrunchLabs Build Box", p:100, est:true, hi:300, note:"Quarterly plan, about $100 a quarter: $100–300 depending on when you stop it. Totals count the low end. Wrap a printed membership card or the first box, and build each one together.", ph:"⚙", st:"ok", stTxt:"Subscribed", link:"https://www.crunchlabs.com", lt:"CrunchLabs"},
+  {kid:"everett", slot:"xmas", name:"Lego Pokémon Pikachu", img:"pikachu", st:"ok", stTxt:"Arriving Mon", link:AMZ("LEGO Pokemon Pikachu"), lt:"Search"},
+  {kid:"everett", slot:"xmas", name:"Lego Pokémon Charmander", img:"charmander", st:"ok", stTxt:"Arriving Mon", link:AMZ("LEGO Pokemon Charmander"), lt:"Search"},
+  {kid:"everett", slot:"xmas", name:"Magna-Tiles Rail Racers Deluxe (90 pc)", note:"Magnetic track-and-car set. A gentle way to test the marble-run idea.", ph:"🧲", st:"ok", stTxt:"Ordered", link:"https://www.amazon.com/dp/B0DW99M4NM", lt:"Amazon page"},
+  {kid:"everett", slot:"xmas", name:"NERF Vortex Lightstrike Aero Howler", note:"Glow-in-the-dark whistling football with a tail.", img:"nerfvortex", st:"ok", stTxt:"Ordered", link:"https://www.amazon.com/s?k=NERF+Vortex+Lightstrike+Aero+Howler", lt:"Search"},
+  {kid:"everett", slot:"xmas", name:"Stranger Things: The Ultimate Pop-Up Book", p:75, est:true, note:"Fragile. Make it a read-together-with-Baba book.", ph:"🔦", st:"ok", stTxt:"Ordered", link:"https://insighteditions.com/products/stranger-things-the-ultimate-pop-up-book", lt:"Publisher page"},
+];
+
+const slots = [
+  {id:"advent", title:"Advent calendars", date:"Dec 1–24"},
+  {id:"d1", title:"Drop 1", date:"Sun Nov 29"},
+  {id:"d2", title:"Drop 2", date:"Sun Dec 6"},
+  {id:"d3", title:"Drop 3: music", date:"Sun Dec 13"},
+  {id:"d4", title:"Drop 4", date:"Sun Dec 20"},
+  {id:"xmas", title:"Christmas morning", date:"Fri Dec 25"},
+];
+const kids = [
+  {id:"emmy", name:"Emmy", age:14, blurb:"Romantasy, thrillers, volleyball, art, crochet"},
+  {id:"maya", name:"Maya", age:12, blurb:"Birds, running, art, Olivia Rodrigo"},
+  {id:"everett", name:"Everett", age:5, blurb:"Stranger Things, CrunchLabs, Lego, Coyote Peterson"},
+];
+const todos = [
+  ["UO Kayla jeans (Rinse, 26) are backordered", "ships after Dec 14, so it may arrive close to Christmas"],
+  ["Pair the Sound Burger with Maya's speaker", "Bluetooth or aux, before wrapping"],
+  ["Watch the Olivia Rodrigo order (~Dec 11)", "if it's late, swap the girls' Dec 13 and Dec 20 drops"],
+  ["Decide glove colors and the charm split", "heart, tree, knife, guitar"],
+  ["Optional: Joyce's alphabet lights for Everett", "DIY; or the Stardew crochet book preorder (out Jan 26) for Emmy"],
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+function priceTxt(it){
+  if(it.p==null) return "Price?";
+  if(it.hi) return "$" + it.p + "–" + it.hi + " est.";
+  return (it.est?"~":"") + money(it.p) + (it.per||"") + (it.est?" est.":"");
+}
+function tally(list){
+  let known=0, est=0, missing=0;
+  list.forEach(i=>{ if(i.p==null) missing++; else if(i.est) est+=i.p; else known+=i.p; });
+  return {known, est, total:known+est, missing};
+}
+function card(it){
+  const pic = it.img
+    ? `<img class="thumb" src="img/${it.img}.jpg" alt="${esc(it.name)}" loading="lazy">`
+    : `<div class="ph" aria-hidden="true">${it.ph||"🎁"}</div>`;
+  const link = it.nolink ? "" : `<a href="${it.link}" target="_blank" rel="noopener">${esc(it.lt)} ↗</a>`;
+  return `<article class="item ${it.kid}">${pic}<div>
+    <h4>${esc(it.name)}</h4>
+    ${it.note?`<p class="note">${esc(it.note)}</p>`:""}
+    <div class="meta"><span class="chip ${it.st}">${esc(it.stTxt)}</span>${it.extra?`<span class="extra">${esc(it.extra)}</span>`:""}${link}</div>
+  </div></article>`;
+}
+function render(){
+  document.getElementById("summary").innerHTML = kids.map(k=>{
+    const mine = items.filter(i=>i.kid===k.id || i.kid==="all" || (i.kid==="both" && k.id!=="everett"));
+    const tobuy = mine.filter(i=>i.st==="todo").length;
+    const t = tally(items.filter(i=>i.kid===k.id));
+    const transit = mine.filter(i=>i.st==="warn").length;
+    return `<div class="kidcard ${k.id}"><h3>${k.name} · ${k.age}</h3><p>${k.blurb}</p>
+      <div class="nums"><div><b>${mine.length}</b><span>gifts</span></div><div><b>${transit}</b><span>in transit</span></div><div><b>${tobuy}</b><span>to buy</span></div></div></div>`;
+  }).join("");
+  document.getElementById("todo").innerHTML = todos.map(([a,b])=>`<li>${a} <span>· ${b}</span></li>`).join("");
+  document.getElementById("schedule").innerHTML = slots.map(s=>{
+    const lanes = kids.map(k=>{
+      const list = items.filter(i=>i.slot===s.id && i.kid===k.id);
+      return `<div class="lane ${k.id}"><div class="who">${k.name}</div>${list.length?list.map(card).join(""):`<div class="empty">Nothing here</div>`}</div>`;
+    }).join("");
+    const sharedRow = (who,label) => { const l = items.filter(i=>i.slot===s.id && i.kid===who);
+      return l.length?`<div class="shared lane ${who}"><div class="who">${label}</div>${l.map(card).join("")}</div>`:""; };
+    return `<section class="stop"><div class="stophead"><h2>${s.title}</h2><span class="date">${s.date}</span></div>
+      <div class="lanes">${lanes}</div>
+      ${sharedRow("both","Emmy + Maya, shared")}${sharedRow("all","All three kids, shared")}</section>`;
+  }).join("");
+}
+function setKid(k){
+  document.body.dataset.kid = k;
+  document.querySelectorAll(".filters button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===k ? "true":"false"));
+  try{ localStorage.setItem("giftboard-kid", k); }catch(e){}
+}
+render();
+document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>setKid(b.dataset.k)));
+try{ const saved = localStorage.getItem("giftboard-kid"); if(saved) setKid(saved); }catch(e){}
+</script>
+</body>
+</html>
