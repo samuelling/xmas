@@ -107,6 +107,11 @@ body[data-kid]:not([data-kid="all"]) .summary .kidcard.total{display:none}
 .restore:hover{color:var(--ok);border-color:var(--ok)}
 .rm:focus-visible,.restore:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
 #editnote{min-height:1.2em;font-size:.85rem}
+.unlock{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:.85rem}
+.unlock[hidden]{display:none}
+.unlock input{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card,transparent);color:inherit;min-width:12em}
+.unlock button,.linkbtn{font:600 .8rem var(--body);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:transparent;color:inherit;cursor:pointer}
+.linkbtn{border:none;padding:0;text-decoration:underline;color:var(--muted);font-weight:500}
 .removed-sec{margin-top:8px;padding-top:12px;border-top:1px dashed var(--line)}
 .removed-sec h2{font-size:1.05rem;color:var(--muted);margin-bottom:8px}
 .removed-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
@@ -121,6 +126,12 @@ footer{color:var(--muted);font-size:.82rem;margin-top:30px}
       <h1>Christmas 2026 Gift Board</h1>
       <p class="sub">Advent Dec 1–24 · drops on the four Sundays of Advent · Christmas morning</p>
       <p class="sub" id="editnote" aria-live="polite"></p>
+      <p class="sub" id="editopen" hidden><button class="linkbtn" id="editbtn" type="button">Edit this board</button></p>
+      <form class="unlock" id="unlock" hidden>
+        <label for="pass">Passphrase</label>
+        <input id="pass" type="password" autocomplete="current-password" required>
+        <button type="submit">Unlock</button>
+      </form>
     </div>
     <div class="filters" role="group" aria-label="Show gifts for">
       <button id="f-all" data-k="all" aria-pressed="true">Everyone</button>
@@ -143,7 +154,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:30px}
     <div class="removed-list" id="removedList"></div>
   </section>
 
-  <footer>Photos are cropped from your order screenshots. "Search" links open a store search; the other links go to a product or info page. Status as of Nov 22. Removing an item hides it for everyone who can edit this board; restore it from "Removed items" at the bottom.</footer>
+  <footer>Photos are cropped from your order screenshots. "Search" links open a store search; the other links go to a product or info page. Status as of Nov 22. Removing an item hides it for everyone looking at this board; restore it from "Removed items" at the bottom.</footer>
 </div>
 
 <script>
@@ -226,6 +237,9 @@ items.forEach(i=>{ i.id = (i.kid+"-"+i.slot+"-"+i.name).toLowerCase().replace(/[
 let removed = new Map();
 let canEdit = false;
 let removedCol = null;
+const API = "https://xmas-board.samuelling.workers.dev/removed";
+const useWorker = typeof claude === "undefined" || !claude || typeof claude.use !== "function";
+let pass = "";
 const live = () => items.filter(i=>!removed.has(i.id));
 function setNote(msg){ document.getElementById("editnote").textContent = msg; }
 
@@ -282,7 +296,31 @@ function render(){
 }
 
 let busy = false;
+async function postWorker(body){
+  const r = await fetch(API, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({...body, pass})});
+  let data = {}; try{ data = await r.json(); }catch(e){}
+  if(!r.ok){ const e = new Error(data.error||"failed"); e.status = r.status; throw e; }
+  return data;
+}
+function lockWorker(msg){
+  pass = ""; canEdit = false;
+  try{ localStorage.removeItem("giftboard-pass"); }catch(e){}
+  document.getElementById("editopen").hidden = false;
+  render(); setNote(msg||"");
+}
 async function writeRemoved(id, remove){
+  if(useWorker){
+    if(!canEdit || busy) return;
+    busy = true;
+    try{
+      const data = await postWorker({id, remove});
+      removed = new Map(Object.entries(data)); render(); setNote("");
+    }catch(e){
+      if(e.status===401) lockWorker("That passphrase stopped working. Unlock again to keep editing.");
+      else setNote("That change didn't save. Try again in a moment.");
+    }finally{ busy = false; }
+    return;
+  }
   if(!removedCol || busy) return;
   busy = true;
   const ref = removedCol.doc(id);
@@ -309,8 +347,51 @@ document.addEventListener("click", ev=>{
   writeRemoved(b.dataset.id, b.classList.contains("rm"));
 });
 
+async function loadWorker(){
+  try{
+    const r = await fetch(API, {cache:"no-store"});
+    if(!r.ok) throw new Error(r.status);
+    removed = new Map(Object.entries(await r.json()));
+    render();
+    if(document.getElementById("editnote").textContent.startsWith("Saved changes")) setNote("");
+  }catch(e){ setNote("Saved changes couldn't load, so the list may be out of date."); }
+}
+async function unlock(p){
+  pass = p;
+  try{
+    await postWorker({check:true});
+    canEdit = true;
+    try{ localStorage.setItem("giftboard-pass", p); }catch(e){}
+    document.getElementById("unlock").hidden = true;
+    document.getElementById("editopen").hidden = true;
+    render(); setNote("Editing is on. Remove buttons are on each item.");
+    return true;
+  }catch(e){
+    pass = "";
+    if(e.status===401){ try{ localStorage.removeItem("giftboard-pass"); }catch(_){} setNote("That passphrase isn't right."); }
+    else setNote("Couldn't reach the board's server. Try again in a moment.");
+    return false;
+  }
+}
+if(useWorker){
+  document.getElementById("editopen").hidden = false;
+  document.getElementById("editbtn").addEventListener("click", ()=>{
+    document.getElementById("editopen").hidden = true;
+    document.getElementById("unlock").hidden = false;
+    document.getElementById("pass").focus();
+  });
+  document.getElementById("unlock").addEventListener("submit", ev=>{
+    ev.preventDefault(); unlock(document.getElementById("pass").value.trim());
+  });
+  loadWorker();
+  setInterval(()=>{ if(!document.hidden) loadWorker(); }, 30000);
+  document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) loadWorker(); });
+  let saved = null; try{ saved = localStorage.getItem("giftboard-pass"); }catch(e){}
+  if(saved) unlock(saved);
+}
+
 (async ()=>{
-  if(typeof claude === "undefined" || !claude || typeof claude.use !== "function") return;
+  if(useWorker) return;
   const db = await claude.use("db");
   if(!db){ setNote("Sign in on claude.ai to remove items."); return; }
   removedCol = db.collection("removed");

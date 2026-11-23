@@ -1,0 +1,16 @@
+# Xmas gift board: saves which items were removed, for the page at linglab.org/xmas.
+# Server: https://xmas-board.samuelling.workers.dev
+# Deployed by Cloudflare's Git integration (Workers & Pages › Create › Import a repository › xmas,
+# root directory: worker), so each push redeploys it.
+# Set the shared passphrase once in the dashboard: Settings › Variables and Secrets › add Secret PASSPHRASE.
+name = "xmas-board"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+[[durable_objects.bindings]]
+name = "BOARD"
+class_name = "Board"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Board"]
